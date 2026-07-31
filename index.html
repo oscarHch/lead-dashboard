@@ -4,80 +4,226 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard LEAD UNMSM</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: { sans: ['Poppins', 'sans-serif'] },
-          colors: { lead: { purple: '#8027AC', pink: '#EB427D', blue: '#03106A', dark: '#031346', white: '#FFFFFF' } }
+          colors: {
+            lead: { purple: '#8027AC', pink: '#EB427D', blue: '#03106A', dark: '#031346', white: '#FFFFFF' }
+          }
         }
       }
     }
   </script>
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased overflow-x-hidden">
+
+  <!-- BARRA DE NAVEGACIÓN -->
   <header class="bg-lead-dark text-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        <span class="font-bold text-base sm:text-lg tracking-wide">LEAD UNMSM</span>
+        <div class="flex items-center space-x-3">
+          <span class="font-bold text-base sm:text-lg tracking-wide">LEAD UNMSM</span>
+        </div>
+        <nav class="flex items-center space-x-1 sm:space-x-2">
+          <button onclick="cambiarVista('resultados')" id="btnResultados" class="bg-lead-purple text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-sm transition">Resultados</button>
+          <button onclick="cambiarVista('contenido')" id="btnContenido" class="text-gray-300 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition">Contenido</button>
+          <button onclick="cambiarVista('publico')" id="btnPublico" class="text-gray-300 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition">Público</button>
+        </nav>
       </div>
     </div>
   </header>
-  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8">
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+    
     <div id="pantallaCarga" class="flex justify-center items-center py-20">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-lead-purple"></div>
-      <span class="ml-3 text-lead-purple font-medium text-sm">Cargando datos en el celular...</span>
+      <span class="ml-3 text-lead-purple font-medium text-sm">Cargando todo el dashboard completo...</span>
     </div>
-    <div id="contenidoDashboard" class="hidden">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+    <!-- VISTA RESULTADOS -->
+    <section id="vistaResultados" class="hidden">
+      <div class="mb-6">
+        <h1 class="text-xl sm:text-2xl font-semibold text-lead-dark">Rendimiento General</h1>
+      </div>
+
+      <!-- FILTRO DE FECHAS -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        <span class="text-xs sm:text-sm font-medium text-gray-500">Rango de análisis:</span>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <input type="date" id="fechaInicio" class="border border-gray-200 rounded-md p-2 text-xs sm:text-sm text-gray-700 outline-none focus:border-lead-purple">
+          <span class="text-gray-400 text-xs text-center">hasta</span>
+          <input type="date" id="fechaFin" class="border border-gray-200 rounded-md p-2 text-xs sm:text-sm text-gray-700 outline-none focus:border-lead-purple">
+          <button onclick="aplicarFiltro()" class="bg-lead-blue text-white px-3 py-2 rounded-md text-xs sm:text-sm font-medium">Filtrar</button>
+          <button onclick="limpiarFiltro()" class="text-gray-400 px-2 py-2 text-xs sm:text-sm">Limpiar</button>
+        </div>
+      </div>
+
+      <!-- TARJETAS KPI -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
         <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-lead-dark">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Alcance Total</p>
-          <p id="kpiAlcance" class="text-2xl font-semibold text-lead-dark mt-1">0</p>
+          <p class="text-[10px] text-gray-400 font-semibold uppercase">Alcance Total</p>
+          <p id="kpiAlcance" class="text-xl font-semibold text-lead-dark mt-1">0</p>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-lead-blue">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Visualizaciones</p>
-          <p id="kpiVistas" class="text-2xl font-semibold text-lead-blue mt-1">0</p>
+          <p class="text-[10px] text-gray-400 font-semibold uppercase">Visualizaciones</p>
+          <p id="kpiVistas" class="text-xl font-semibold text-lead-blue mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-lead-purple">
+          <p class="text-[10px] text-gray-400 font-semibold uppercase">Interacciones</p>
+          <p id="kpiInteracciones" class="text-xl font-semibold text-lead-purple mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-lead-pink">
+          <p class="text-[10px] text-gray-400 font-semibold uppercase">Engagement Rate</p>
+          <p id="kpiER" class="text-xl font-semibold text-lead-pink mt-1">0%</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-lead-purple col-span-2 md:col-span-1">
+          <p class="text-[10px] text-gray-400 font-semibold uppercase">Seguidores</p>
+          <p id="kpiSeguidores" class="text-xl font-semibold text-lead-purple mt-1">0</p>
         </div>
       </div>
-      <div class="bg-white p-5 rounded-xl shadow-sm border">
+
+      <!-- GRÁFICO PRINCIPAL -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border mb-6">
+        <h2 class="text-sm font-semibold text-lead-dark mb-4">Evolución Diaria</h2>
         <div class="relative h-72 w-full"><canvas id="graficoResultados"></canvas></div>
       </div>
-    </div>
+    </section>
+
+    <!-- VISTA CONTENIDO -->
+    <section id="vistaContenido" class="hidden">
+      <div class="bg-white p-5 rounded-xl shadow-sm border">
+        <h2 class="text-base font-semibold text-lead-dark mb-4">Detalle de Contenido</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50 text-gray-400 text-xs border-b">
+                <th class="p-3">Descripción / Copy</th>
+                <th class="p-3">Tipo</th>
+                <th class="p-3">Alcance</th>
+              </tr>
+            </thead>
+            <tbody id="tablaContenidoBody" class="text-xs divide-y"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA PUBLICO -->
+    <section id="vistaPublico" class="hidden">
+      <div class="bg-white p-5 rounded-xl shadow-sm border">
+        <h2 class="text-base font-semibold text-lead-dark mb-4">Análisis de Público</h2>
+        <div id="contenedorPublico" class="text-sm text-gray-600">Cargando demografía...</div>
+      </div>
+    </section>
+
   </main>
+
   <script>
-    // PEGA AQUÍ ABAJO TU URL QUE COPIASTE DE APPS SCRIPT ENTRE LAS COMILLAS
-    const URL_API = "https://script.google.com/macros/s/AKfycbwW6cqhmDeUY9qz3uoxgpEUJ3q9Y4hOKJHfzLnVehfDR9HtmBrGxTq5JSj1RTkWA_v_/exec";
+    // PEGA AQUÍ TU URL DE APPS SCRIPT QUE TERMINA EN /exec
+    const URL_API = "PEGA_AQUÍ_TU_URL_DE_APPS_SCRIPT_QUE_TERMINA_EN_EXEC";
+
+    let datosResultadosGlobal = [];
+    let cacheContenidoCruces = [];
+    let chartResultados;
 
     window.onload = async function() {
       try {
-        let res = await fetch(URL_API + "?action=getData");
-        let json = await res.json();
-        let datos = json.resultados;
+        let response = await fetch(URL_API + "?action=getData");
+        let json = await response.json();
+        
+        datosResultadosGlobal = json.resultados;
+        cacheContenidoCruces = json.contenido;
 
-        let tAlc = datos.reduce((a, b) => a + Number(b.Alcance || 0), 0);
-        let tVis = datos.reduce((a, b) => a + Number(b.Visualizaciones || 0), 0);
-
-        document.getElementById('kpiAlcance').innerText = tAlc.toLocaleString();
-        document.getElementById('kpiVistas').innerText = tVis.toLocaleString();
+        if(datosResultadosGlobal.length > 0) {
+          document.getElementById('fechaInicio').value = datosResultadosGlobal[0].Fecha;
+          document.getElementById('fechaFin').value = datosResultadosGlobal[datosResultadosGlobal.length - 1].Fecha;
+        }
 
         document.getElementById('pantallaCarga').classList.add('hidden');
-        document.getElementById('contenidoDashboard').classList.remove('hidden');
-
-        new Chart(document.getElementById('graficoResultados'), {
-          type: 'line',
-          data: {
-            labels: datos.map(d => d.Fecha),
-            datasets: [{ label: 'Alcance', data: datos.map(d => Number(d.Alcance || 0)), borderColor: '#8027AC', tension: 0.3, fill: true, backgroundColor: 'rgba(128,39,172,0.1)' }]
-          },
-          options: { responsive: true, maintainAspectRatio: false }
-        });
-      } catch (e) {
-        document.getElementById('pantallaCarga').innerHTML = `<p class="text-red-600 font-semibold">❌ Error al conectar: ${e.message}</p>`;
+        document.getElementById('vistaResultados').classList.remove('hidden');
+        
+        actualizarDashboardResultados(datosResultadosGlobal);
+        renderizarContenido(cacheContenidoCruces);
+        renderizarPublico(json.publico);
+      } catch (err) {
+        document.getElementById('pantallaCarga').innerHTML = `<p class="text-lead-pink font-semibold">❌ Error cargando datos: ${err.message}</p>`;
       }
     };
+
+    function cambiarVista(vista) {
+      ['resultados', 'contenido', 'publico'].forEach(v => {
+        document.getElementById(`vista${v.charAt(0).toUpperCase() + v.slice(1)}`).classList.add('hidden');
+        document.getElementById(`btn${v.charAt(0).toUpperCase() + v.slice(1)}`).className = "text-gray-300 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition";
+      });
+      document.getElementById(`vista${vista.charAt(0).toUpperCase() + vista.slice(1)}`).classList.remove('hidden');
+      document.getElementById(`btn${vista.charAt(0).toUpperCase() + vista.slice(1)}`).className = "bg-lead-purple text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-sm transition";
+    }
+
+    function aplicarFiltro() {
+      const i = document.getElementById('fechaInicio').value, f = document.getElementById('fechaFin').value;
+      if(i && f) actualizarDashboardResultados(datosResultadosGlobal.filter(d => d.Fecha >= i && d.Fecha <= f));
+    }
+
+    function limpiarFiltro() {
+      if(datosResultadosGlobal.length > 0) {
+        document.getElementById('fechaInicio').value = datosResultadosGlobal[0].Fecha;
+        document.getElementById('fechaFin').value = datosResultadosGlobal[datosResultadosGlobal.length - 1].Fecha;
+      }
+      actualizarDashboardResultados(datosResultadosGlobal);
+    }
+
+    function actualizarDashboardResultados(datos) {
+      if(chartResultados) chartResultados.destroy();
+
+      const tAlc = datos.reduce((a, b) => a + Number(b.Alcance || 0), 0);
+      const tVis = datos.reduce((a, b) => a + Number(b.Visualizaciones || 0), 0);
+      const tInt = datos.reduce((a, b) => a + Number(b.Interacciones || 0), 0);
+      const tSeg = datos.reduce((a, b) => a + Number(b.Seguidores || 0), 0);
+      const currentER = tAlc > 0 ? (tInt / tAlc) * 100 : 0;
+
+      document.getElementById('kpiAlcance').innerText = tAlc.toLocaleString();
+      document.getElementById('kpiVistas').innerText = tVis.toLocaleString();
+      document.getElementById('kpiInteracciones').innerText = tInt.toLocaleString();
+      document.getElementById('kpiER').innerText = currentER.toFixed(2) + '%';
+      document.getElementById('kpiSeguidores').innerText = tSeg.toLocaleString();
+
+      chartResultados = new Chart(document.getElementById('graficoResultados'), {
+        type: 'line',
+        data: {
+          labels: datos.map(d => d.Fecha),
+          datasets: [
+            { label: 'Alcance', data: datos.map(d => Number(d.Alcance || 0)), borderColor: '#8027AC', tension: 0.3, fill: true, backgroundColor: 'rgba(128,39,172,0.1)' },
+            { label: 'Interacciones', data: datos.map(d => Number(d.Interacciones || 0)), borderColor: '#EB427D', tension: 0.3 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    function renderizarContenido(data) {
+      const tbody = document.getElementById('tablaContenidoBody');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `<td class="p-3">${row['Descripción / Copy'] || ''}</td><td class="p-3">${row['Tipo'] || ''}</td><td class="p-3">${row['Alcance'] || 0}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderizarPublico(pub) {
+      const contenedor = document.getElementById('contenedorPublico');
+      contenedor.innerHTML = `<p class="font-medium text-lead-dark">Pases de datos cargados correctamente:</p>
+        <p>• Países registrados: ${pub.paises.length}</p>
+        <p>• Ciudades registradas: ${pub.ciudades.length}</p>`;
+    }
   </script>
 </body>
 </html>
